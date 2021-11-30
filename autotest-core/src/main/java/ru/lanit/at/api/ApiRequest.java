@@ -14,6 +14,7 @@ import ru.lanit.at.utils.FileUtil;
 import ru.lanit.at.utils.JsonUtil;
 import ru.lanit.at.utils.RegexUtil;
 
+import java.io.File;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -32,6 +33,9 @@ public class ApiRequest {
     private Method method;
     private String body;
     private String fullUrl;
+    private String filePath;
+    private String fileName;
+
     private Response response;
 
     private RequestSpecBuilder builder;
@@ -44,6 +48,8 @@ public class ApiRequest {
         this.method = Method.valueOf(requestModel.getMethod());
         this.body = requestModel.getBody();
         this.fullUrl = replaceVarsIfPresent(requestModel.getUrl());
+        this.filePath = replaceVarsIfPresent(requestModel.getFilePath());
+        this.fileName = replaceVarsIfPresent(requestModel.getFileName());
 
         URI uri;
 
@@ -56,6 +62,7 @@ public class ApiRequest {
 
         this.builder.setBaseUri(uri);
         setBodyFromFile();
+        if ((!filePath.isEmpty()) && (!fileName.isEmpty())) setMultipartFormRequestForFilUpload();
         addLoggingListener();
     }
 
@@ -82,6 +89,15 @@ public class ApiRequest {
     }
 
     /**
+     * Сеттит MultipartForm query-параметры
+     */
+    public void setMultipartFormQuery(Map<String, String> query) {
+        query.forEach((k, v) -> {
+            builder.addMultiPart(k, v);
+        });
+    }
+
+    /**
      * Отправляет сформированный запрос
      */
     public void sendRequest() {
@@ -96,6 +112,20 @@ public class ApiRequest {
     }
 
     /**
+     * Отправляет Multipart Data Form сформированный запрос
+     */
+    public void sendMultipartFormRequest() {
+        RequestSpecification requestSpecification = builder.build();
+
+        Response response = given()
+                .spec(requestSpecification)
+                .post(fullUrl);
+
+        attachRequestResponseToAllure(response, body);
+        this.response = response;
+    }
+
+    /**
      * Сессит тело запроса из файла
      */
     private void setBodyFromFile() {
@@ -103,6 +133,14 @@ public class ApiRequest {
             body = replaceVarsIfPresent(FileUtil.readBodyFromJsonDir(body));
             builder.setBody(body);
         }
+    }
+
+    /**
+     * Добавляет Multipart Data Form для загрузки файла
+     */
+    private void setMultipartFormRequestForFilUpload() {
+        File file = FileUtil.searchFileInDirectory(filePath, fileName);
+        builder.addMultiPart(file);
     }
 
     /**

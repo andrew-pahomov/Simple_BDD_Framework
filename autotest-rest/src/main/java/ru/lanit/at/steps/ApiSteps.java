@@ -2,6 +2,7 @@ package ru.lanit.at.steps;
 
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.ru.И;
+import io.cucumber.java.ru.Пусть;
 import io.qameta.allure.Allure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,9 @@ public class ApiSteps {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApiSteps.class);
     private ApiRequest apiRequest;
+    private Map<String, String> randomProfile = new HashMap<>();
+    private Map<String, String> actualProfile = new HashMap<>();
+    private Map<String, String> profileDiff = new HashMap<>();
 
     @И("создать запрос")
     public void createRequest(RequestModel requestModel) {
@@ -40,7 +44,15 @@ public class ApiSteps {
     @И("добавить query параметры")
     public void addQuery(DataTable dataTable) {
         Map<String, String> query = new HashMap<>();
+        dataTable.asLists().forEach(it -> query.put(replaceVarsIfPresent(it.get(0)), replaceVarsIfPresent(it.get(1))));
+        apiRequest.setQuery(query);
+    }
+
+    @И("добавить query параметры для добавления информации")
+    public void addQueryFromMap(DataTable dataTable) {
+        Map<String, String> query = new HashMap<>();
         dataTable.asLists().forEach(it -> query.put(it.get(0), it.get(1)));
+        query.putAll(profileDiff);
         apiRequest.setQuery(query);
     }
 
@@ -61,6 +73,7 @@ public class ApiSteps {
         vars.forEach((k, jsonPath) -> {
             String extractedValue = VariableUtil.extractBrackets(getFieldFromJson(responseBody, jsonPath));
             ContextHolder.put(k, extractedValue);
+            actualProfile.put(k, extractedValue);
             Allure.addAttachment(k, "application/json", extractedValue, ".txt");
             LOG.info("Извлечены данные: {}={}", k, extractedValue);
         });
@@ -99,5 +112,38 @@ public class ApiSteps {
     @И("подождать {int} сек")
     public void waitSeconds(int timeout) {
         Sleep.pauseSec(timeout);
+    }
+
+    @Пусть("сгенерировать случайную информацию о профиле")
+    public void generateRandomProfileInfo(Map<String, String> table) {
+        table.forEach((k, v) -> {
+            String value = DataGenerator.generateValueByTypeOfVar(k);
+            randomProfile.put(k, value);
+            Allure.addAttachment(k, "application/json", k + ": " + value, ".txt");
+            LOG.info("Сгенерирована случайная переменная: {}={}", k, value);
+        });
+    }
+
+    @И("определить недостающую информацию")
+    public void countDiff() {
+        actualProfile.forEach((k, v) -> {
+            if (actualProfile.get(k).isEmpty()) {
+                profileDiff.put(k, randomProfile.get(k));
+                System.out.println(profileDiff.get(k));
+            }
+        });
+    }
+
+    @И("отправить multipart-form-data запрос")
+    public void sendMultipartForm() {
+        apiRequest.sendMultipartFormRequest();
+    }
+
+
+    @И("добавить multipart-form-data query параметры")
+    public void addMultipartFormQuery(DataTable dataTable) {
+        Map<String, String> query = new HashMap<>();
+        dataTable.asLists().forEach(it -> query.put(replaceVarsIfPresent(it.get(0)), replaceVarsIfPresent(it.get(1))));
+        apiRequest.setMultipartFormQuery(query);
     }
 }

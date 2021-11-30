@@ -13,7 +13,9 @@ public class DataTableTypeContainer {
                 entry.get("method"),
                 entry.get("body"),
                 entry.get("path"),
-                entry.get("url")
+                entry.get("url"),
+                entry.get("filePath"),
+                entry.get("fileName")
         );
     }
 }

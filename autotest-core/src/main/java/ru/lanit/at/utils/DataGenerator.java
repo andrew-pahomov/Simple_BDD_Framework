@@ -1,5 +1,10 @@
 package ru.lanit.at.utils;
 
+import com.github.javafaker.Faker;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
@@ -37,6 +42,47 @@ public class DataGenerator {
         }
         result.trimToSize();
         return result.toString();
+    }
+
+    public static String generateValueByTypeOfVar(String varType) {
+        Faker faker = new Faker(new Locale("ru"));
+        String result = "";
+        switch (varType) {
+            case "first_name":
+                result = faker.name().firstName();
+                break;
+            case "last_name":
+                result = faker.name().lastName();
+                break;
+            case "id":
+                result = faker.numerify("########");
+                break;
+            case "home_town":
+                result = faker.address().city();
+                break;
+            case "status":
+                result = "Онлайн";
+                break;
+            case "bdate":
+                result = LocalDate.now().minusYears(18).format(DateTimeFormatter.ofPattern("d.M.yyyy"));
+                break;
+            case "bdate_visibility":
+                result = randomNumeric(0,2);
+                break;
+            case "country":
+                result = randomNumeric(1);
+                break;
+            case "phone":
+                result = faker.phoneNumber().phoneNumber();
+                break;
+            case "relation":
+                result = randomNumeric(0,8);
+                break;
+            case "sex":
+                result = randomNumeric(1,2);
+                break;
+        }
+        return result;
     }
 
     /**
