@@ -34,8 +34,6 @@ public class ApiRequest {
     private Method method;
     private String body;
     private String fullUrl;
-    private String filePath;
-    private String fileName;
 
     private Response response;
 
@@ -49,8 +47,6 @@ public class ApiRequest {
         this.method = Method.valueOf(requestModel.getMethod());
         this.body = requestModel.getBody();
         this.fullUrl = replaceVarsIfPresent(requestModel.getUrl());
-        this.filePath = replaceVarsIfPresent(requestModel.getFilePath());
-        this.fileName = replaceVarsIfPresent(requestModel.getFileName());
 
         URI uri;
 
@@ -63,7 +59,6 @@ public class ApiRequest {
 
         this.builder.setBaseUri(uri);
         setBodyFromFile();
-        if ((!filePath.isEmpty()) && (!fileName.isEmpty())) setMultipartFormRequestForFilUpload();
         addLoggingListener();
     }
 
@@ -93,6 +88,15 @@ public class ApiRequest {
      * Сеттит MultipartForm query-параметры
      */
     public void setMultipartFormQuery(Map<String, String> query) {
+        query.forEach((k, v) -> {
+            builder.addMultiPart(k, v);
+        });
+    }
+
+    /**
+     * Сеттит MultipartForm query-параметры
+     */
+    public void setMultipartFormQueryForFileUpload(Map<String, File> query) {
         query.forEach((k, v) -> {
             builder.addMultiPart(k, v);
         });
@@ -134,15 +138,6 @@ public class ApiRequest {
             body = replaceVarsIfPresent(FileUtil.readBodyFromJsonDir(body));
             builder.setBody(body);
         }
-    }
-
-    /**
-     * Добавляет Multipart Data Form для загрузки файла
-     */
-    private void setMultipartFormRequestForFilUpload() {
-        File file = FileUtil.searchFileInDirectory(filePath, fileName);
-        builder.setAccept(ContentType.JSON);
-        builder.addMultiPart("file", file);
     }
 
     /**

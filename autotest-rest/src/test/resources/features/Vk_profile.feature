@@ -24,7 +24,7 @@
       # добавить реальный токен приложения vk вместо токен
     И создать контекстные переменные
       | token | токен |
-      | v     | 5.131 |
+      | v     | 5.131                                                                                 |
 
     # получить информацию из профиля
     И создать запрос
@@ -73,8 +73,10 @@
     # получить ссылку для загрузки фото
     # добавить реальный токен приложения vk вместо токен
     Пусть создать контекстные переменные
-      | token | токен |
-      | v     | 5.131 |
+      | token           | токен |
+      | v               | 5.131                                                                                 |
+      | file_photo_path | .\src\test\resources                                                                  |
+      | file_photo_name | img.png                                                                               |
     И создать запрос
       | method | path                                     |
       | GET    | /method/photos.getOwnerPhotoUploadServer |
@@ -88,8 +90,10 @@
 
     # загрузить фото
     Пусть создать запрос
-      | method | url           | filePath             | fileName |
-      | POST   | ${upload_url} | .\src\test\resources | img.png  |
+      | method | url           |
+      | POST   | ${upload_url} |
+    И добавить multipart-form-data query параметры для загрузки файла
+      | file1 | ${file_photo_path} | ${file_photo_name} |
     Когда отправить multipart-form-data запрос
     Тогда статус код 200
     И извлечь данные
@@ -102,8 +106,8 @@
       | method | path                          |
       | POST   | /method/photos.saveOwnerPhoto |
     И добавить multipart-form-data query параметры
-      | access_token | ${token}   |
-      | v            | ${v}       |
+      | access_token | ${token}  |
+      | v            | ${v}      |
       | server       | ${server} |
       | photo        | ${photo}  |
       | hash         | ${hash}   |

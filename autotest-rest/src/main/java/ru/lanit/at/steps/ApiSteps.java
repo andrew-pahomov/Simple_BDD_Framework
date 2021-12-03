@@ -10,12 +10,9 @@ import org.testng.Assert;
 import ru.lanit.at.api.ApiRequest;
 import ru.lanit.at.api.models.RequestModel;
 import ru.lanit.at.api.testcontext.ContextHolder;
-import ru.lanit.at.utils.CompareUtil;
-import ru.lanit.at.utils.DataGenerator;
-import ru.lanit.at.utils.Sleep;
-import ru.lanit.at.utils.VariableUtil;
+import ru.lanit.at.utils.*;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -156,5 +153,15 @@ public class ApiSteps {
         Map<String, String> query = new HashMap<>();
         dataTable.asLists().forEach(it -> query.put(replaceVarsIfPresent(it.get(0)), replaceVarsIfPresent(it.get(1))));
         apiRequest.setMultipartFormQuery(query);
+    }
+
+    @И("добавить multipart-form-data query параметры для загрузки файла")
+    public void addMultipartFormQueryFileUpload(DataTable dataTable) {
+        Map<String, File> query = new HashMap<>();
+        dataTable.asLists().forEach((it) -> {
+            File file = FileUtil.searchFileInDirectory(replaceVarsIfPresent(it.get(1)), replaceVarsIfPresent(it.get(2)));
+            query.put(it.get(0), file);
+        });
+        apiRequest.setMultipartFormQueryForFileUpload(query);
     }
 }

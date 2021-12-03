@@ -8,16 +8,12 @@ public class RequestModel {
     private String body;
     private String path;
     private String url;
-    private String filePath;
-    private String fileName;
 
-    public RequestModel(String method, String body, String path, String url, String filePath, String fileName) {
+    public RequestModel(String method, String body, String path, String url) {
         this.method = method;
         this.body = body;
         this.path = path;
         this.url = url;
-        this.filePath = filePath;
-        this.fileName = fileName;
     }
 
     public String getMethod() {
@@ -44,11 +40,4 @@ public class RequestModel {
                 .toJson(this);
     }
 
-    public String getFileName() {
-        return fileName;
-    }
-
-    public String getFilePath() {
-        return filePath;
-    }
 }
