@@ -67,7 +67,7 @@ public class DataGenerator {
                 result = LocalDate.now().minusYears(18).format(DateTimeFormatter.ofPattern("d.M.yyyy"));
                 break;
             case "bdate_visibility":
-                result = randomNumeric(0,2);
+                result = randomNumeric(0, 2);
                 break;
             case "country":
                 result = randomNumeric(1);
@@ -76,10 +76,17 @@ public class DataGenerator {
                 result = faker.phoneNumber().phoneNumber();
                 break;
             case "relation":
-                result = randomNumeric(0,8);
+                result = randomNumeric(0, 8);
                 break;
             case "sex":
-                result = randomNumeric(1,2);
+                result = randomNumeric(1, 2);
+                break;
+            case "topic_text":
+            case "message1_text":
+            case "message2_text":
+            case "message3_text":
+            case "message4_text":
+                result = faker.shakespeare().hamletQuote();
                 break;
         }
         return result;

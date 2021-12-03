@@ -2,6 +2,7 @@ package ru.lanit.at.api;
 
 import io.qameta.allure.Allure;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.http.ContentType;
 import io.restassured.http.Method;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -140,7 +141,8 @@ public class ApiRequest {
      */
     private void setMultipartFormRequestForFilUpload() {
         File file = FileUtil.searchFileInDirectory(filePath, fileName);
-        builder.addMultiPart(file);
+        builder.setAccept(ContentType.JSON);
+        builder.addMultiPart("file", file);
     }
 
     /**

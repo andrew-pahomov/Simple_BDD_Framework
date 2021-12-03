@@ -15,6 +15,7 @@ import ru.lanit.at.utils.DataGenerator;
 import ru.lanit.at.utils.Sleep;
 import ru.lanit.at.utils.VariableUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class ApiSteps {
     @И("добавить query параметры для добавления информации")
     public void addQueryFromMap(DataTable dataTable) {
         Map<String, String> query = new HashMap<>();
-        dataTable.asLists().forEach(it -> query.put(it.get(0), it.get(1)));
+        dataTable.asLists().forEach(it -> query.put(replaceVarsIfPresent(it.get(0)), replaceVarsIfPresent(it.get(1))));
         query.putAll(profileDiff);
         apiRequest.setQuery(query);
     }
@@ -115,12 +116,22 @@ public class ApiSteps {
     }
 
     @Пусть("сгенерировать случайную информацию о профиле")
-    public void generateRandomProfileInfo(Map<String, String> table) {
-        table.forEach((k, v) -> {
-            String value = DataGenerator.generateValueByTypeOfVar(k);
-            randomProfile.put(k, value);
-            Allure.addAttachment(k, "application/json", k + ": " + value, ".txt");
-            LOG.info("Сгенерирована случайная переменная: {}={}", k, value);
+    public void generateRandomProfileInfo(DataTable table) {
+        table.asList().forEach((el) -> {
+            String value = DataGenerator.generateValueByTypeOfVar(el);
+            randomProfile.put(el, value);
+            Allure.addAttachment(el, "application/json", el + ": " + value, ".txt");
+            LOG.info("Сгенерирована случайная переменная: {}={}", el, value);
+        });
+    }
+
+    @Пусть("сгенерировать случайную переменную")
+    public void generateRandomVarInfo(DataTable table) {
+        table.asList().forEach((el) -> {
+            String value = DataGenerator.generateValueByTypeOfVar(el);
+            ContextHolder.put(el, value);
+            Allure.addAttachment(el, "application/json", el + ": " + value, ".txt");
+            LOG.info("Сгенерирована случайная переменная: {}={}", el, value);
         });
     }
 

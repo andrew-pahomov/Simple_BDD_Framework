@@ -73,6 +73,12 @@
             <artifactId>autotest-core</artifactId>
             <version>1.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.konghq</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>3.13.4</version>
+        </dependency>
     </dependencies>
 
 </project>

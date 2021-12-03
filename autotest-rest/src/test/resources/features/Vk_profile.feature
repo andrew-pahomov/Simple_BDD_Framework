@@ -7,7 +7,8 @@
   - Сменить фото профиля на любую другую
 
   Сценарий: Выполнение Get запроса к API VK, проверка полученной информации, дополнение недостающих полей
-    # сгенерировать случайную информацию в профиль
+
+      # сгенерировать случайную информацию в профиль
     Пусть сгенерировать случайную информацию о профиле
       | first_name       |
       | id               |
@@ -19,16 +20,19 @@
       | phone            |
       | relation         |
       | sex              |
-    # добавить реальный токен приложения vk вместо токен
+
+      # добавить реальный токен приложения vk вместо токен
     И создать контекстные переменные
       | token | токен |
+      | v     | 5.131 |
+
     # получить информацию из профиля
     И создать запрос
       | method | path                           |
       | GET    | /method/account.getProfileInfo |
     И добавить query параметры
       | access_token | ${token} |
-      | v            | 5.131 |
+      | v            | ${v}     |
     Когда отправить запрос
     Тогда статус код 200
     И извлечь данные
@@ -42,14 +46,15 @@
       | phone            | $.response.phone            |
       | relation         | $.response.relation         |
       | sex              | $.response.sex              |
-    # дополнить информацию в профиле
+
+     # дополнить информацию в профиле
     И определить недостающую информацию
     И создать запрос
       | method | path                            |
-      | POST   | /method/account.saveProfileInfo |
+      | GET    | /method/account.saveProfileInfo |
     И добавить query параметры для добавления информации
       | access_token | ${token} |
-      | v            | 5.131 |
+      | v            | ${v}     |
     Когда отправить запрос
     Тогда статус код 200
     И сравнить значения
@@ -66,35 +71,41 @@
 
   Сценарий: Изменение фото профиля
     # получить ссылку для загрузки фото
-    Пусть создать запрос
+    # добавить реальный токен приложения vk вместо токен
+    Пусть создать контекстные переменные
+      | token | токен |
+      | v     | 5.131 |
+    И создать запрос
       | method | path                                     |
       | GET    | /method/photos.getOwnerPhotoUploadServer |
     И добавить query параметры
       | access_token | ${token} |
-      | v            | 5.131 |
+      | v            | ${v}     |
     Когда отправить запрос
     Тогда статус код 200
-    # загрузить фото
-    Пусть извлечь данные
+    И извлечь данные
       | upload_url | $.response.upload_url |
-    И создать запрос
+
+    # загрузить фото
+    Пусть создать запрос
       | method | url           | filePath             | fileName |
       | POST   | ${upload_url} | .\src\test\resources | img.png  |
     Когда отправить multipart-form-data запрос
     Тогда статус код 200
     И извлечь данные
-      | serverQ | $.server |
-      | photoQ  | $.photo  |
-      | hashQ   | $.hash   |
+      | server | $.server |
+      | photo  | $.photo  |
+      | hash   | $.hash   |
+
     # подтвердить фото
     Пусть создать запрос
       | method | path                          |
       | POST   | /method/photos.saveOwnerPhoto |
     И добавить multipart-form-data query параметры
-      | access_token | ${token}      |
-      | v            | 5.131      |
-      | server       | ${serverQ} |
-      | photo        | ${photoQ}  |
-      | hash         | ${hashQ}   |
+      | access_token | ${token}   |
+      | v            | ${v}       |
+      | server       | ${server} |
+      | photo        | ${photo}  |
+      | hash         | ${hash}   |
     Когда отправить запрос
     Тогда статус код 200
