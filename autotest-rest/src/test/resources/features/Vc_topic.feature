@@ -12,12 +12,12 @@
   Сценарий:
     # Создать группу
     Пусть создать контекстные переменные
-      | token             | токен  |
-      | v                 | 5.131                                                                                 |
-      | group_title       | Группа                                                                                |
-      | group_type        | group                                                                                 |
-      | group_description | Описание группы                                                                       |
-      | topic_title       | Кто может процитировать Гамлета?                                                      |
+      | token             | токен Standalone                 |
+      | v                 | 5.131                            |
+      | group_title       | Тестовая группа для обсуждений   |
+      | group_type        | group                            |
+      | group_description | Группа для обсуждений            |
+      | topic_title       | Кто может процитировать Гамлета? |
     И создать запрос
       | method | path                  |
       | GET    | /method/groups.create |
@@ -153,7 +153,7 @@
     Когда отправить запрос
     Тогда статус код 200
     И извлечь данные
-      | topics_count    | $.response.count          |
+      | topics_count    | $.response.count         |
       | actual_message1 | $.response.items[0].text |
       | actual_message2 | $.response.items[1].text |
       | actual_message3 | $.response.items[2].text |

@@ -4,6 +4,7 @@ import io.cucumber.datatable.DataTable;
 import io.cucumber.java.ru.И;
 import io.cucumber.java.ru.Пусть;
 import io.qameta.allure.Allure;
+import io.restassured.path.xml.XmlPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -42,7 +43,13 @@ public class ApiSteps {
     @И("добавить query параметры")
     public void addQuery(DataTable dataTable) {
         Map<String, String> query = new HashMap<>();
-        dataTable.asLists().forEach(it -> query.put(replaceVarsIfPresent(it.get(0)), replaceVarsIfPresent(it.get(1))));
+        dataTable.asLists().forEach(it -> {
+            String value = replaceVarsIfPresent(it.get(1));
+            if (it.get(0).equals("photos_list")) {
+                value = "[" + value.replace("\\\"", "\"") + "]";
+            }
+            query.put(replaceVarsIfPresent(it.get(0)), value);
+        });
         apiRequest.setQuery(query);
     }
 
@@ -68,8 +75,13 @@ public class ApiSteps {
     @И("извлечь данные")
     public void extractVariables(Map<String, String> vars) {
         String responseBody = apiRequest.getResponse().body().asPrettyString();
+        if (responseBody.substring(0, 6).equals("<html>")) {
+            XmlPath htmlDoc = new XmlPath(XmlPath.CompatibilityMode.HTML, responseBody);
+            responseBody = htmlDoc.getString("html.body");
+        }
+        String finalResponseBody = responseBody;
         vars.forEach((k, jsonPath) -> {
-            String extractedValue = VariableUtil.extractBrackets(getFieldFromJson(responseBody, jsonPath));
+            String extractedValue = VariableUtil.extractBrackets(getFieldFromJson(finalResponseBody, jsonPath));
             ContextHolder.put(k, extractedValue);
             actualProfile.put(k, extractedValue);
             Allure.addAttachment(k, "application/json", extractedValue, ".txt");
@@ -137,7 +149,8 @@ public class ApiSteps {
         actualProfile.forEach((k, v) -> {
             if (actualProfile.get(k).isEmpty()) {
                 profileDiff.put(k, randomProfile.get(k));
-                System.out.println(profileDiff.get(k));
+                Allure.addAttachment(k, "application/json", k + ": " + v, ".txt");
+                LOG.info("Необходимо добавить: {}={}", k, v);
             }
         });
     }
@@ -147,11 +160,16 @@ public class ApiSteps {
         apiRequest.sendMultipartFormRequest();
     }
 
-
     @И("добавить multipart-form-data query параметры")
     public void addMultipartFormQuery(DataTable dataTable) {
         Map<String, String> query = new HashMap<>();
-        dataTable.asLists().forEach(it -> query.put(replaceVarsIfPresent(it.get(0)), replaceVarsIfPresent(it.get(1))));
+        dataTable.asLists().forEach(it -> {
+            String value = replaceVarsIfPresent(it.get(1));
+            if (it.get(0).equals("photos_list")) {
+                value = "[" + value.replace("\\\"", "\"") + "]";
+            }
+            query.put(replaceVarsIfPresent(it.get(0)), value);
+        });
         apiRequest.setMultipartFormQuery(query);
     }
 

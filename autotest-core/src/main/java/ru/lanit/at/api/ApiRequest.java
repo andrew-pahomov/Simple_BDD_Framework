@@ -4,6 +4,7 @@ import io.qameta.allure.Allure;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
+import io.restassured.path.xml.XmlPath;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.aeonbits.owner.ConfigFactory;
@@ -91,6 +92,8 @@ public class ApiRequest {
         query.forEach((k, v) -> {
             builder.addMultiPart(k, v);
         });
+        builder.setAccept(ContentType.JSON);
+        builder.setContentType(ContentType.MULTIPART);
     }
 
     /**
@@ -100,6 +103,8 @@ public class ApiRequest {
         query.forEach((k, v) -> {
             builder.addMultiPart(k, v);
         });
+        builder.setAccept(ContentType.JSON);
+        builder.setContentType(ContentType.MULTIPART);
     }
 
     /**
