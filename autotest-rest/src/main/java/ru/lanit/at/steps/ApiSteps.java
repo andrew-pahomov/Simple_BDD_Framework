@@ -32,7 +32,6 @@ public class ApiSteps {
     private static final Logger LOG = LoggerFactory.getLogger(ApiSteps.class);
     private ApiRequest apiRequest;
     private Map<String, String> randomProfile = new HashMap<>();
-    private Map<String, String> actualProfile = new HashMap<>();
     private Map<String, String> profileDiff = new HashMap<>();
 
     @И("создать запрос")
@@ -58,6 +57,17 @@ public class ApiSteps {
         apiRequest.setQuery(query);
     }
 
+    @И("определить недостающую информацию")
+    public void countDiff() {
+        randomProfile.forEach((k, v) -> {
+            if (CompareUtil.compare(ContextHolder.getValue(k), "", "==")) {
+                profileDiff.put(k, randomProfile.get(k));
+                Allure.addAttachment(k, "application/json", k + ": " + v, ".txt");
+                LOG.info("Необходимо добавить: {}={}", k, v);
+            }
+        });
+    }
+
     @И("отправить запрос")
     public void send() {
         apiRequest.sendRequest();
@@ -75,7 +85,6 @@ public class ApiSteps {
         vars.forEach((k, jsonPath) -> {
             String extractedValue = VariableUtil.extractBrackets(getFieldFromJson(responseBody, jsonPath));
             ContextHolder.put(k, extractedValue);
-            actualProfile.put(k, extractedValue);
             Allure.addAttachment(k, "application/json", extractedValue, ".txt");
             LOG.info("Извлечены данные: {}={}", k, extractedValue);
         });
@@ -133,17 +142,6 @@ public class ApiSteps {
             ContextHolder.put(el, value);
             Allure.addAttachment(el, "application/json", el + ": " + value, ".txt");
             LOG.info("Сгенерирована случайная переменная: {}={}", el, value);
-        });
-    }
-
-    @И("определить недостающую информацию")
-    public void countDiff() {
-        randomProfile.forEach((k, v) -> {
-            if (actualProfile.get(k).isEmpty()) {
-                profileDiff.put(k, randomProfile.get(k));
-                Allure.addAttachment(k, "application/json", k + ": " + v, ".txt");
-                LOG.info("Необходимо добавить: {}={}", k, v);
-            }
         });
     }
 
