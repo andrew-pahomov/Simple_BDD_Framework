@@ -150,16 +150,6 @@ public class ApiSteps {
         apiRequest.sendMultipartFormRequest();
     }
 
-    @И("добавить multipart-form-data query параметры")
-    public void addMultipartFormQuery(DataTable dataTable) {
-        Map<String, String> query = new HashMap<>();
-        dataTable.asLists().forEach(it -> {
-            String value = vkPatch(it.get(0), replaceVarsIfPresent(it.get(1)));
-            query.put(replaceVarsIfPresent(it.get(0)), value);
-        });
-        apiRequest.setMultipartFormQuery(query);
-    }
-
     @И("добавить multipart-form-data query параметры для загрузки файла")
     public void addMultipartFormQueryFileUpload(DataTable dataTable) {
         Map<String, File> query = new HashMap<>();

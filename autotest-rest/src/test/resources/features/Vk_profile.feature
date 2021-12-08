@@ -105,7 +105,7 @@
     Пусть создать запрос
       | method | path                          |
       | POST   | /method/photos.saveOwnerPhoto |
-    И добавить multipart-form-data query параметры
+    И добавить query параметры
       | access_token | ${token}  |
       | v            | ${v}      |
       | server       | ${server} |
