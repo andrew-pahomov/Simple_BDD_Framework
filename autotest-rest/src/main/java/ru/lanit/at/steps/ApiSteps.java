@@ -1,10 +1,12 @@
 package ru.lanit.at.steps;
 
+import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Configuration;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.ru.И;
 import io.cucumber.java.ru.Пусть;
 import io.qameta.allure.Allure;
-import io.restassured.path.xml.XmlPath;
+import org.openqa.selenium.By;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -14,11 +16,16 @@ import ru.lanit.at.api.testcontext.ContextHolder;
 import ru.lanit.at.utils.*;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.open;
 import static ru.lanit.at.api.testcontext.ContextHolder.replaceVarsIfPresent;
 import static ru.lanit.at.utils.JsonUtil.getFieldFromJson;
+import static ru.lanit.at.utils.JsonUtil.vkPatch;
+
 
 public class ApiSteps {
 
@@ -44,19 +51,9 @@ public class ApiSteps {
     public void addQuery(DataTable dataTable) {
         Map<String, String> query = new HashMap<>();
         dataTable.asLists().forEach(it -> {
-            String value = replaceVarsIfPresent(it.get(1));
-            if (it.get(0).equals("photos_list")) {
-                value = "[" + value.replace("\\\"", "\"") + "]";
-            }
+            String value = vkPatch(it.get(0), replaceVarsIfPresent(it.get(1)));
             query.put(replaceVarsIfPresent(it.get(0)), value);
         });
-        apiRequest.setQuery(query);
-    }
-
-    @И("добавить query параметры для добавления информации")
-    public void addQueryFromMap(DataTable dataTable) {
-        Map<String, String> query = new HashMap<>();
-        dataTable.asLists().forEach(it -> query.put(replaceVarsIfPresent(it.get(0)), replaceVarsIfPresent(it.get(1))));
         query.putAll(profileDiff);
         apiRequest.setQuery(query);
     }
@@ -74,14 +71,9 @@ public class ApiSteps {
 
     @И("извлечь данные")
     public void extractVariables(Map<String, String> vars) {
-        String responseBody = apiRequest.getResponse().body().asPrettyString();
-        if (responseBody.substring(0, 6).equals("<html>")) {
-            XmlPath htmlDoc = new XmlPath(XmlPath.CompatibilityMode.HTML, responseBody);
-            responseBody = htmlDoc.getString("html.body");
-        }
-        String finalResponseBody = responseBody;
+        String responseBody = apiRequest.getResponseBody();
         vars.forEach((k, jsonPath) -> {
-            String extractedValue = VariableUtil.extractBrackets(getFieldFromJson(finalResponseBody, jsonPath));
+            String extractedValue = VariableUtil.extractBrackets(getFieldFromJson(responseBody, jsonPath));
             ContextHolder.put(k, extractedValue);
             actualProfile.put(k, extractedValue);
             Allure.addAttachment(k, "application/json", extractedValue, ".txt");
@@ -146,7 +138,7 @@ public class ApiSteps {
 
     @И("определить недостающую информацию")
     public void countDiff() {
-        actualProfile.forEach((k, v) -> {
+        randomProfile.forEach((k, v) -> {
             if (actualProfile.get(k).isEmpty()) {
                 profileDiff.put(k, randomProfile.get(k));
                 Allure.addAttachment(k, "application/json", k + ": " + v, ".txt");
@@ -164,10 +156,7 @@ public class ApiSteps {
     public void addMultipartFormQuery(DataTable dataTable) {
         Map<String, String> query = new HashMap<>();
         dataTable.asLists().forEach(it -> {
-            String value = replaceVarsIfPresent(it.get(1));
-            if (it.get(0).equals("photos_list")) {
-                value = "[" + value.replace("\\\"", "\"") + "]";
-            }
+            String value = vkPatch(it.get(0), replaceVarsIfPresent(it.get(1)));
             query.put(replaceVarsIfPresent(it.get(0)), value);
         });
         apiRequest.setMultipartFormQuery(query);
@@ -181,5 +170,27 @@ public class ApiSteps {
             query.put(it.get(0), file);
         });
         apiRequest.setMultipartFormQueryForFileUpload(query);
+    }
+
+    @Пусть("залогиниться на сайт {string} с логином {string} и паролем {string}")
+    public void loginVk(String url, String login, String password) {
+        Configuration.headless = true;
+        open(url);
+        $(By.xpath("//input[@id='index_email']")).setValue(replaceVarsIfPresent(login));
+        $(By.xpath("//input[@id='index_pass']")).setValue(replaceVarsIfPresent(password));
+        $(By.xpath("//button[@id='index_login_button']")).click();
+        $(By.xpath("//input[@id='ts_input']")).shouldBe(Condition.visible, Duration.ofSeconds(15));
+
+    }
+
+    @И("перейти по ссылке {string}")
+    public void openInviteLink(String inviteLink) {
+        open(replaceVarsIfPresent(inviteLink));
+    }
+
+    @И("присоединиться к беседе")
+    public void joinChat() {
+        $(By.cssSelector("button._im_join_chat")).shouldBe(Condition.visible, Duration.ofSeconds(15));
+        $(By.cssSelector("button._im_join_chat")).click();
     }
 }

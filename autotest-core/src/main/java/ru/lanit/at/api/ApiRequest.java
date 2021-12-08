@@ -67,6 +67,15 @@ public class ApiRequest {
         return response;
     }
 
+    public String getResponseBody() {
+        String responseBody = response.body().asPrettyString();
+        if (responseBody.substring(0, 6).equals("<html>")) {
+            XmlPath htmlDoc = new XmlPath(XmlPath.CompatibilityMode.HTML, responseBody);
+            responseBody = htmlDoc.getString("html.body");
+        }
+        return responseBody;
+    }
+
     /**
      * Сеттит заголовки
      */

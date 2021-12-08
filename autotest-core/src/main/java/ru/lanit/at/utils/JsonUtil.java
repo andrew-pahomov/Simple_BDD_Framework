@@ -55,4 +55,14 @@ public class JsonUtil {
         val = matchValue == null ? val : matchValue;
         return val;
     }
+
+    public static String vkPatch(String k, String value) {
+        if (k.equals("photos_list")) {
+            return "[" + value.replace("\\\"", "\"") + "]";
+        }
+        if (k.equals("peer_id")) {
+            return String.valueOf(2000000000 + Integer.parseInt(value));
+        }
+        return value;
+    }
 }

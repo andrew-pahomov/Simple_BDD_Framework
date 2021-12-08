@@ -16,20 +16,20 @@
     # Создать приватный альбом
     # вместо токен указать токен Standalone приложения
     * создать контекстные переменные
-      | token               | токен Standalone            |
-      | v                   | 5.131                       |
-      | title_private       | Приватный альбом            |
-      | description_private | Описание приватного альбома |
-      | title_public        | Публичный альбом            |
-      | description_public  | Описание публичного альбома |
-      | file_photo_path     | .\src\test\resources        |
-      | file_photo_name     | photo.jpg                   |
-      | message_photo       | Прикольная фотка            |
-      | user_id             | 690043267                   |
-      | x                   | 10                          |
-      | y                   | 10                          |
-      | x2                  | 80                          |
-      | y2                  | 80                          |
+      | token               | 94b8805d2b8c1fcd94d04ae4558336a7b2ead1337cc2ea7452de340443cfa04400c58fee43baaa5f3e7b7 |
+      | v                   | 5.131                                                                                 |
+      | title_private       | Приватный альбом                                                                      |
+      | description_private | Описание приватного альбома                                                           |
+      | title_public        | Публичный альбом                                                                      |
+      | description_public  | Описание публичного альбома                                                           |
+      | file_photo_path     | .\src\test\resources                                                                  |
+      | file_photo_name     | photo.jpg                                                                             |
+      | message_photo       | Прикольная фотка                                                                      |
+      | user_id             | 690043267                                                                             |
+      | x                   | 10                                                                                    |
+      | y                   | 10                                                                                    |
+      | x2                  | 80                                                                                    |
+      | y2                  | 80                                                                                    |
 
     Пусть создать запрос
       | method | path                       |
