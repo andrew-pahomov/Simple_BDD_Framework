@@ -23,8 +23,7 @@ import java.util.Map;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
 import static ru.lanit.at.api.testcontext.ContextHolder.replaceVarsIfPresent;
-import static ru.lanit.at.utils.JsonUtil.getFieldFromJson;
-import static ru.lanit.at.utils.JsonUtil.vkPatch;
+import static ru.lanit.at.utils.JsonUtil.*;
 
 
 public class ApiSteps {
@@ -50,7 +49,7 @@ public class ApiSteps {
     public void addQuery(DataTable dataTable) {
         Map<String, String> query = new HashMap<>();
         dataTable.asLists().forEach(it -> {
-            String value = vkPatch(it.get(0), replaceVarsIfPresent(it.get(1)));
+            String value = photoListPatch(it.get(0), replaceVarsIfPresent(it.get(1)));
             query.put(replaceVarsIfPresent(it.get(0)), value);
         });
         query.putAll(profileDiff);
@@ -103,7 +102,7 @@ public class ApiSteps {
     @И("создать контекстные переменные")
     public void createContextVariables(Map<String, String> table) {
         table.forEach((k, v) -> {
-            ContextHolder.put(k, v);
+            ContextHolder.put(k, peerIdPatch(k, replaceVarsIfPresent(v)));
             LOG.info("Сохранена переменная: {}={}", k, v);
         });
     }

@@ -56,11 +56,15 @@ public class JsonUtil {
         return val;
     }
 
-    public static String vkPatch(String k, String value) {
+    public static String photoListPatch(String k, String value) {
         if (k.equals("photos_list")) {
             return "[" + value.replace("\\\"", "\"") + "]";
         }
-        if (k.equals("peer_id")) {
+        return value;
+    }
+
+    public static String peerIdPatch(String k, String value) {
+        if (k.equals("chat_id_patched")) {
             return String.valueOf(2000000000 + Integer.parseInt(value));
         }
         return value;

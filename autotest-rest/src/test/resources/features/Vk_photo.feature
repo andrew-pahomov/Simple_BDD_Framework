@@ -16,7 +16,7 @@
     # Создать приватный альбом
     # вместо токен указать токен Standalone приложения
     * создать контекстные переменные
-      | token               | 94b8805d2b8c1fcd94d04ae4558336a7b2ead1337cc2ea7452de340443cfa04400c58fee43baaa5f3e7b7 |
+      | token               | токен standalone |
       | v                   | 5.131                                                                                 |
       | title_private       | Приватный альбом                                                                      |
       | description_private | Описание приватного альбома                                                           |
